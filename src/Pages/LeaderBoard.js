@@ -113,7 +113,7 @@ function LeaderBoard() {
                         </div>
                       </div>
                       <h3 className="text-center text-base pb-2 cursor-pointer pt-3" onClick={() => navigate("/totalVAR")}>
-                      💸 Total: $10000
+                        💸 Total: $10000
                       </h3>
                     </div>
                   </div>

@@ -34,7 +34,7 @@ function ChosenProtocol(){
                 <div className="flex justify-between items-center mb-2 pb-3">
                     <div className="w-64 border border:black h-40 rounded-lg custom-animations_shine__1YTqy overflow-y-auto no-scrollbar">
                         <h1 className="text-center text-xl pt-2">
-                            Contracts
+                            Top 10 Users
                         </h1>
                         <div className="px-1">
                             <div className="general-styles_screen-centered-container__3fxeE h-full">
@@ -99,7 +99,7 @@ function ChosenProtocol(){
                     </div>
                     <div className="w-64 border border:black h-40 rounded-lg custom-animations_shine__1YTqy overflow-y-auto no-scrollbar">
                         <h1 className="text-center text-xl pt-2">
-                            Tokens
+                            Top 10 Tokens
                         </h1>
                         <div className="px-1">
                             <div className="general-styles_screen-centered-container__3fxeE h-full">
@@ -134,7 +134,7 @@ function ChosenProtocol(){
                         <div className="px-1">
                             <div className="general-styles_screen-centered-container__3fxeE h-full pt-2">
                                 <h1 className="text-center text-xl pt-2">
-                                    Yearly Approval Adjusted VaR
+                                    💸 Yearly Approval Adjusted VaR
                                 </h1>
                             </div>
                         </div>
