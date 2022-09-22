@@ -3,8 +3,22 @@ import { Routes, Route } from "react-router-dom"
 import LeaderBoard from './Pages/LeaderBoard';
 import ChosenProtocol from './Pages/ChosenProtocol';
 import TotalVAR from './Pages/TotalVAR';
+import { createClient } from "urql"
+import { useNavigate } from "react-router-dom"
+import React, { useState } from 'react'
+
+const APIURL = "https://api.thegraph.com/subgraphs/name/greg-torrington/greg-v3"
+
+const client = createClient({
+  url: APIURL
+})
+
+//const [allProtocols, setAllProtocls] = ([])
 
 function App(){
+  const navigate = useNavigate()
+  const [chosenProtocol, setChosenProtocol] = useState([])
+  const [protocols, setProtocols] = useState([])
 
   return (
     <div className="App">
@@ -27,9 +41,9 @@ function App(){
             </div>
             <div className="m-auto pt-20 w-full">
                 <Routes>
-                  <Route path="/" element={ <LeaderBoard/> } />
-                  <Route path="/protocol" element={ <ChosenProtocol/> } />
-                  <Route path="/totalVAR" element={ <TotalVAR/> } />
+                  <Route path="/" element={<LeaderBoard client={client} navigate={navigate} setChosenProtocol={setChosenProtocol} setProtocols={setProtocols}/>} />
+                  <Route path="/protocol" element={ <ChosenProtocol chosenProtocol={chosenProtocol} navigate={navigate}/> } />
+                  <Route path="/totalVAR" element={ <TotalVAR protocols={protocols} navigate={navigate}/> } />
                 </Routes>
             </div>
           </div>

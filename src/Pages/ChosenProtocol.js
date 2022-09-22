@@ -1,20 +1,16 @@
 import React from 'react'
 import { LineChart, Line, CartesianGrid, XAxis, YAxis } from 'recharts';
-import { useNavigate } from "react-router-dom";
-import { chosenData } from "./LeaderBoard"; //import { chosenContracts, chosenVaRofContracts } from "./LeaderBoard"
 
 const data = [{name: 'January', uv: 400, pv: 2400, amt: 1000}, {name: "February", uv: 400, pv: 1800, amt: 1000}];
 
-function ChosenProtocol(){
-
-    const navigate = useNavigate()
+function ChosenProtocol(props){
 
     return(
         <div>
         <div className="flex flex-col items-center justify-center w-full">
         <div className="w-9/10 md:w-auto flex flex-col md:max-w-mint-width py-6">
             <div className="w-full flex px-6">
-                <div className="uppercase text-sm text-gray-600 hover:text-gray-500 cursor-pointer mb-4 flex-1" onClick={() => navigate("/")}>
+                <div className="uppercase text-sm text-gray-600 hover:text-gray-500 cursor-pointer mb-4 flex-1" onClick={() => props.navigate("/")}>
                     ◀
                     <span className="text-xs"> Back to leader board</span>
                 </div>
@@ -25,7 +21,7 @@ function ChosenProtocol(){
                         <div className="px-1">
                             <div className="general-styles_screen-centered-container__3fxeE h-full pb-2">
                                 <h1 className="text-center text-3xl">
-                                    🔥 {chosenData.name}
+                                    🔥 {props.chosenProtocol[0]}
                                 </h1>
                             </div>
                         </div>
