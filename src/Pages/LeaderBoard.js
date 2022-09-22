@@ -15,77 +15,71 @@ function LeaderBoard(props) {
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(true)
   const [totalVaR, setTotalVaR] = useState(0)
-  const [allProtocols, setAllProtocols] = useState([])
+  const [allContracts, setAllContracts] = useState([])
 
   async function fetchBlockChainData() {
-    let protocols = []
-    let protocolInfo = []
 
     const assetResponse = await props.client.query(assetQuery).toPromise()
     let rawAssetData = assetResponse.data.assets
-    protocolInfo[0] = "Maker"
-    protocolInfo[1] = rawAssetData
+    let contracts = rawAssetData
 
-    let usersPromiseArray = []
-    let protocolVaR = 0;
-    for (let i=0; i<protocolInfo[1].length; i++){
-        let noUsers = protocolInfo[1][i].count
+    for (let contractIndex=0; contractIndex<contracts.length; contractIndex++){
+
+      contracts[contractIndex]["VaR"] = 0
+      contracts[contractIndex]["users"] = []
+      let noUsers = contracts[contractIndex]["count"] 
   
-        let skip = 0
-        let first = 1000
-        while (noUsers>0) {
-            if (noUsers<1000){first=noUsers}
+      let skip = 0
+      let first = 1000
+      let usersPromiseArray = []
+      while (noUsers>0) {
+          if (noUsers<1000){first=noUsers}
 
-            let usersQuery = `
-                query {
-                    users (
-                    first: `+first+`
-                    after: `+skip+`
-                    ){
-                        id
-                        balance
-                        allowance
-                    }
-                }
-                `
+          let usersQuery = `
+              query {
+                  users (
+                  first: `+first+`
+                  after: `+skip+`
+                  ){
+                    id
+                    balance
+                    allowance
+                  }
+              }
+              `
 
-            skip += 1000
-            noUsers = noUsers - 1000
+          skip += 1000
+          noUsers = noUsers - 1000
 
-            usersPromiseArray.push(props.client.query(usersQuery).toPromise())
+          usersPromiseArray.push(props.client.query(usersQuery).toPromise())
         }
         let allUsersPromise = await Promise.all(usersPromiseArray)
         
         let users = []
         for (let j=0; j<allUsersPromise.length; j++){
-            users.push(allUsersPromise[j].data.users)
+          users = users.concat(allUsersPromise[j].data.users)
         }
-        protocolInfo[1][i][0] = users
+        contracts[contractIndex]["users"] = users
 
-        let contractVaR = 0
-        for (let j=0; j<protocolInfo[1][i][0].length; j++){
-            for (let c=0; c<protocolInfo[1][i][0][j].length; c++){
-                let allowance = protocolInfo[1][i][0][j][c].allowance
-                let balance = protocolInfo[1][i][0][j][c].balance
-                allowance = parseInt(allowance)/10**18
-                balance = parseInt(balance)/10**18
-                if (allowance<balance){
-                    contractVaR = contractVaR + allowance
-                } else {
-                    contractVaR = contractVaR + balance
-                }
-            }
+        for (let i=0; i<contracts[contractIndex]["users"].length; i++){
+          let allowance = contracts[contractIndex]["users"][i].allowance
+          let balance = contracts[contractIndex]["users"][i].balance
+          allowance = parseInt(allowance)/10**18
+          balance = parseInt(balance)/10**18
+          if (allowance<balance){
+            contracts[contractIndex]["VaR"] += allowance
+          } else {
+            contracts[contractIndex]["VaR"] += balance
+          }
         }
-        protocolVaR += contractVaR
-    }
-
-    protocolInfo[2] = protocolVaR.toFixed(2)
-    setTotalVaR(totalVaR+parseFloat(protocolVaR.toFixed(2)))
-    protocols.push(protocolInfo)
-    setAllProtocols(protocols)
-    props.setProtocols(allProtocols)
-    setLoading(false)
+        contracts[contractIndex]["VaR"] = contracts[contractIndex]["VaR"].toFixed(2)
+        setTotalVaR(contracts[contractIndex]["VaR"])
+        setAllContracts(contracts)
+        setLoading(false)
+      }
   }
+
+
 
   useEffect(() => {
       fetchBlockChainData()
@@ -132,11 +126,11 @@ function LeaderBoard(props) {
                                     </thead>
                                     <tbody id="protocols-tbody" className="divide-y divide-gray-200">
                                       {  
-                                        allProtocols
+                                        allContracts
                                         .filter( (item) => {
                                           if (searchTerm===""){
                                             return item
-                                          } else if (item[0].toLowerCase().includes(searchTerm.toLowerCase())){
+                                          } else if (item.name.toLowerCase().includes(searchTerm.toLowerCase())){
                                             return item
                                           }
                                         })
@@ -147,34 +141,43 @@ function LeaderBoard(props) {
                                               <tr key={i+1} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                 <td className="px-1 py-3">{1} 🏆</td>
                                                 <td className="px-1 py-3 cursor-pointer" onClick={() => {
+                                                  props.setChosenProtocol(item)
                                                   props.navigate("/protocol") 
-                                                  props.setChosenProtocol(allProtocols[i])
-                                                  }}>{item[0]}</td>
-                                                <td className="px-1 py-3">${item[2]}</td>
+                                                  }}>{item.name}</td>
+                                                <td className="px-1 py-3">${item["VaR"]}</td>
                                               </tr>
                                             )
                                           } else if (i===1){
                                             return(
                                               <tr key={i+1} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                 <td className="px-1 py-3">{2} 🥈</td>
-                                                <td className="px-1 py-3 cursor-pointer" onClick={() => props.navigate("/protocol")}>{item[0]}</td>
-                                                <td className="px-1 py-3">${item[2]}</td>
+                                                <td className="px-1 py-3 cursor-pointer" onClick={() => {
+                                                  props.setChosenProtocol(item)
+                                                  props.navigate("/protocol")
+                                                  }}>{item.name}</td>
+                                                <td className="px-1 py-3">${item["VaR"]}</td>
                                               </tr>
                                             )
                                           } else if (i===2){
                                             return(
                                               <tr key={i+1} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                 <td className="px-1 py-3">{3} 🥉</td>
-                                                <td className="px-1 py-3 cursor-pointer" onClick={() => props.navigate("/protocol")}>{item[0]}</td>
-                                                <td className="px-1 py-3">${item[2]}</td>
+                                                <td className="px-1 py-3 cursor-pointer" onClick={() => {
+                                                  props.setChosenProtocol(item)
+                                                  props.navigate("/protocol")
+                                                  }}>{item.name}</td>
+                                                <td className="px-1 py-3">${item["VaR"]}</td>
                                               </tr>
                                             )
                                           } else {
                                             return(
                                               <tr key={i+1} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                 <td className="px-1 py-3">{i+1}</td>
-                                                <td className="px-1 py-3 cursor-pointer" onClick={() => props.navigate("/protocol")}>{item[0]}</td>
-                                                <td className="px-1 py-3">${item[2]}</td>
+                                                <td className="px-1 py-3 cursor-pointer" onClick={() => {
+                                                  props.setChosenProtocol(item)
+                                                  props.navigate("/protocol")
+                                                  }}>{item.name}</td>
+                                                <td className="px-1 py-3">${item["VaR"]}</td>
                                               </tr>
                                             )
                                           }                                        

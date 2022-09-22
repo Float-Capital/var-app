@@ -21,7 +21,7 @@ function ChosenProtocol(props){
                         <div className="px-1">
                             <div className="general-styles_screen-centered-container__3fxeE h-full pb-2">
                                 <h1 className="text-center text-3xl">
-                                    🔥 {props.chosenProtocol[0]}
+                                    🔥 {props.chosenProtocol.name}
                                 </h1>
                             </div>
                         </div>

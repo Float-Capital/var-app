@@ -17,7 +17,7 @@ const client = createClient({
 
 function App(){
   const navigate = useNavigate()
-  const [chosenProtocol, setChosenProtocol] = useState([])
+  const [chosenProtocol, setChosenProtocol] = useState({})
   const [protocols, setProtocols] = useState([])
 
   return (
