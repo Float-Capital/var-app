@@ -21,7 +21,9 @@ function TotalVAR(){
                     <div className="mt-5 md:mt-0 md:min-w-mint-width md:max-w-mint-width px-6 pb-6 mb-5 rounded-lg custom-animations_shine__1YTqy  md:order-2 order-1">
                         <div className="flex justify-between items-center mb-2 pb-3">
                             <div className="w-64 border border:black h-40 rounded-lg custom-animations_shine__1YTqy overflow-y-auto no-scrollbar">
-                                <h1 className="text-center text-xl pt-2">Top 10 Contracts</h1>
+                                <h1 className="text-center text-xl pt-2">
+                                    Top 10 Users
+                                </h1>
                                 <div className="px-1">
                                     <div className="general-styles_screen-centered-container__3fxeE h-full">
                                         <form className="h-full">
