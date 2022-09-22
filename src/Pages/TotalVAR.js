@@ -16,6 +16,67 @@ function TotalVAR(props){
                         </div>
                     </div>
                     <div className="mt-5 md:mt-0 md:min-w-mint-width md:max-w-mint-width px-6 pb-6 mb-5 rounded-lg custom-animations_shine__1YTqy  md:order-2 order-1">
+                        <div className="flex justify-between items-center mb-2 pb-3">
+                            <div className="w-64 border border:black h-40 rounded-lg custom-animations_shine__1YTqy overflow-y-auto no-scrollbar">
+                                <h1 className="text-center text-xl pt-2">
+                                    Top 10 Users
+                                </h1>
+                                <div className="px-1">
+                                    <div className="general-styles_screen-centered-container__3fxeE h-full">
+                                        <form className="h-full">
+                                            <div className="relative">
+                                                <div className="inline-block mx-auto py-2 w-full">
+                                                    <div className="rounded-lg w-full max-h-20">
+                                                        <table className="w-full text-center divide-y divide-gray-200">
+                                                            <thead className="divide-y divide-gray-200 bg-white border-b sticky top-0">
+                                                                <tr className="text-xs md:text-xxs lg:text-xs">
+                                                                    <td className="px-1 underline font-bold py-3">Rank</td>
+                                                                    <td className="px-1 underline font-bold py-3">Contract</td>
+                                                                    <td className="px-1 underline font-bold py-3">Approval Adjusted VaR</td>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody className="divide-y divide-gray-200">
+
+                                                            </tbody>
+                                                        </table>
+                                                    </div>    
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="w-64 border border:black h-40 rounded-lg custom-animations_shine__1YTqy overflow-y-auto no-scrollbar">
+                                <h1 className="text-center text-xl pt-2">
+                                    <img className="inline h-5 ml-2" src="https://media-float-capital.fra1.cdn.digitaloceanspaces.com/public/icons/dollar-coin.png"></img>
+                                    Top 10 Tokens
+                                    </h1>
+                                <div className="px-1">
+                                    <div className="general-styles_screen-centered-container__3fxeE h-full">
+                                        <form className="h-full">
+                                            <div className="relative">
+                                                <div className="inline-block mx-auto py-2 w-full">
+                                                    <div className="rounded-lg w-full max-h-20">
+                                                        <table className="w-full text-center divide-y divide-gray-200">
+                                                            <thead className="divide-y divide-gray-200 bg-white border-b sticky top-0">
+                                                                <tr className="text-xs md:text-xxs lg:text-xs">
+                                                                    <td className="px-1 underline font-bold py-3">Rank</td>
+                                                                    <td className="px-1 underline font-bold py-3">Contract</td>
+                                                                    <td className="px-1 underline font-bold py-3">Approval Adjusted VaR</td>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody className="divide-y divide-gray-200">
+
+                                                            </tbody>
+                                                        </table>
+                                                    </div>    
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div className="general-styles_screen-centered-container__3fxeE h-full pt-2 pb-2">
                             <div className="border border:black rounded-lg">
                                 <div className="px-1">
