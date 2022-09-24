@@ -44,6 +44,12 @@ function LeaderBoard(props) {
                     id
                     balance
                     allowance
+                    countApprovals
+                    approvals {
+                      balance
+                      allowance
+                      timeStamp
+                    }
                   }
               }
               `
@@ -67,8 +73,10 @@ function LeaderBoard(props) {
           allowance = parseInt(allowance)/10**18
           balance = parseInt(balance)/10**18
           if (allowance<balance){
+            contracts[contractIndex]["users"][i]["VaR"] = allowance.toFixed(2)
             contracts[contractIndex]["VaR"] += allowance
           } else {
+            contracts[contractIndex]["users"][i]["VaR"] = balance.toFixed(2)
             contracts[contractIndex]["VaR"] += balance
           }
         }
