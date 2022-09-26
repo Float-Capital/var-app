@@ -2,7 +2,7 @@
   "name": "var-app",
   "version": "0.1.0",
   "private": true,
-  "homepage": ".",
+  "homepage": "http://.",
   "dependencies": {
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^13.0.0",
@@ -45,5 +45,17 @@
     "autoprefixer": "^10.4.9",
     "postcss": "^8.4.16",
     "tailwindcss": "^3.1.8"
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "postcss.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Float-Capital/var-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Float-Capital/var-app/issues"
   }
 }

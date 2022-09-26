@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { LineChart, Line, CartesianGrid, XAxis, YAxis } from 'recharts';
 
-//const data = [{name: 'January', uv: 400}, {name: "March", uv: 21}, {name: "February", uv: 600}];
-
 function ChosenProtocol(props){
 
     const [loading, setLoading] = useState(true)
@@ -12,30 +10,27 @@ function ChosenProtocol(props){
         let finalData = {}
 
         let users = props.chosenProtocol["users"]
-        users.sort((a, b) => a.VaR - b.VaR);
-        let array = []
+        users.sort((a, b) => a.VaR - b.VaR)
+        let top10 = []
         let addresses = []
+        let shortId = []
         for (let i=users.length-1; i>-1; i--){
             let contains = false
-
-            if (array.length==10){
-                break
-            }
-            
+            if (top10.length==10){break}
             for (let j=0; j<addresses.length; j++){
                 if (addresses[j]===users[i].id){
                     contains = true
                     break
                 }
             }
-
             if (!contains){
-                array.push(users[i])
+                shortId.push(users[i].id.substring(0, 3) + "..." + users[i].id.substring(users[i].id.length-3, users[i].id.length))
+                top10.push(users[i])
                 addresses.push(users[i].id)
             }
-
         }
-        finalData["top10"] = array
+        finalData["top10"] = top10
+        finalData["shortId"] = shortId
 
         let approvalTransactions = []
         for (let i=0; i<users.length; i++){
@@ -151,7 +146,7 @@ function ChosenProtocol(props){
                                                                return(
                                                                     <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                                         <td className="px-1 py-3">{1} 🏆</td>
-                                                                        <td className="px-1 py-3">{user.id}</td>
+                                                                        <td className="px-1 py-3">{data.shortId[i]}</td>
                                                                         <td className="px-1 py-3">${user.VaR}</td>
                                                                     </tr>
                                                                     )
@@ -159,7 +154,7 @@ function ChosenProtocol(props){
                                                                 return(
                                                                     <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                                         <td className="px-1 py-3">{2} 🥈</td>
-                                                                        <td className="px-1 py-3">{user.id}</td>
+                                                                        <td className="px-1 py-3">{data.shortId[i]}</td>
                                                                         <td className="px-1 py-3">${user.VaR}</td>
                                                                     </tr>
                                                                     )
@@ -167,7 +162,7 @@ function ChosenProtocol(props){
                                                                 return(
                                                                     <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                                         <td className="px-1 py-3">{3} 🥉</td>
-                                                                        <td className="px-1 py-3">{user.id}</td>
+                                                                        <td className="px-1 py-3">{data.shortId[i]}</td>
                                                                         <td className="px-1 py-3">${user.VaR}</td>
                                                                     </tr>
                                                                     )
@@ -175,7 +170,7 @@ function ChosenProtocol(props){
                                                                 return(
                                                                     <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                                         <td className="px-1 py-3">{i+1}</td>
-                                                                        <td className="px-1 py-3">{user.id}</td>
+                                                                        <td className="px-1 py-3">{data.shortId[i]}</td>
                                                                         <td className="px-1 py-3">${user.VaR}</td>
                                                                      </tr>
                                                                     )
@@ -234,7 +229,7 @@ function ChosenProtocol(props){
                         </div>
                         <div className="px-1">
                             <div className="general-styles_screen-centered-container__3fxeE h-full pt-2 pb-2">
-                                <LineChart width={800} height={300} data={data.lineChartData}>
+                                <LineChart width={500} height={300} data={data.lineChartData}>
                                     <XAxis dataKey="name"/>
                                     <YAxis/>
                                     <CartesianGrid stroke="#eee" strokeDasharray="5 5"/>

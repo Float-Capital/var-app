@@ -199,7 +199,10 @@ function LeaderBoard(props) {
                           </form>
                         </div>
                       </div>
-                      <h3 className="text-center text-base pb-2 cursor-pointer pt-3" onClick={() => props.navigate("/totalVAR")}>
+                      <h3 className="text-center text-base pb-2 cursor-pointer pt-3" onClick={() => {
+                        props.setProtocols(allContracts)
+                        props.navigate("/totalVAR")
+                        }}>
                       💸 Total: ${totalVaR}
                       </h3>
                     </div>
