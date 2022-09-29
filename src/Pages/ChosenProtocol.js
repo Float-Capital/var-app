@@ -1,3 +1,4 @@
+import { parse } from 'mathjs';
 import React, { useEffect, useState } from 'react'
 import { LineChart, Line, CartesianGrid, XAxis, YAxis } from 'recharts';
 
@@ -10,23 +11,28 @@ function ChosenProtocol(props){
         let finalData = {}
 
         let users = props.chosenProtocol["users"]
-        users.sort((a, b) => a.VaR - b.VaR)
+
+        finalData["usersCount"] = users.length
+
+        users.sort((a, b) => a.aaVaR - b.aaVaR)
+
         let top10 = []
-        let addresses = []
         let shortId = []
+        let addresses = []
         for (let i=users.length-1; i>-1; i--){
-            let contains = false
-            if (top10.length==10){break}
+            if (top10.length==20){
+                break
+            }
+            let found = false
             for (let j=0; j<addresses.length; j++){
-                if (addresses[j]===users[i].id){
-                    contains = true
-                    break
+                if (users[i].id===addresses[j]){
+                    found = true
                 }
             }
-            if (!contains){
-                shortId.push(users[i].id.substring(0, 3) + "..." + users[i].id.substring(users[i].id.length-3, users[i].id.length))
-                top10.push(users[i])
+            if (!found){
                 addresses.push(users[i].id)
+                top10.push(users[i])
+                shortId.push(users[i].id.substring(0, 3) + "..." + users[i].id.substring(users[i].id.length-3, users[i].id.length))
             }
         }
         finalData["top10"] = top10
@@ -40,40 +46,33 @@ function ChosenProtocol(props){
         }
         approvalTransactions.sort((a, b) => a.timeStamp - b.timeStamp)
 
-        const currentDate = new Date()
-        let bottomDate = new Date(currentDate.getFullYear()-1, currentDate.getMonth(), currentDate.getDate())
-        let topDate = new Date(currentDate.getFullYear()-1, currentDate.getMonth()+1, currentDate.getDate())
-        let monthlyVaR = []
-        let totalVaR = 0
-        for (let i=0; i<approvalTransactions.length; i++){
-            if (topDate.getTime()<approvalTransactions[i].timeStamp*1000){
-                monthlyVaR.push(totalVaR)
-                bottomDate.setMonth(bottomDate.getMonth()+1)
-                topDate.setMonth(topDate.getMonth()+1)
-                totalVaR = 0
+        let startMonth = new Date(approvalTransactions[0].timeStamp*1000)
+        let endMonth = new Date(startMonth.getFullYear(), startMonth.getMonth()+1, 0)
+        let totalaaVaR = 0
+        let monthlyValues = []
+        let monthlyDates = []
+        for (let approvalIndex=0; approvalIndex<approvalTransactions.length; approvalIndex++){
+            if (endMonth.getTime()<approvalTransactions[approvalIndex].timeStamp*1000){
+                monthlyValues.push(totalaaVaR)
+                monthlyDates.push(endMonth.getFullYear() + " " + endMonth.toLocaleString('default', { month: 'short' }))
+                totalaaVaR = 0
+                startMonth.setMonth(startMonth.getMonth()+1)
+                startMonth.setDate(1)
+                endMonth = new Date(startMonth.getFullYear(), startMonth.getMonth()+1, 0)
             }
-            if (bottomDate.getTime()<approvalTransactions[i].timeStamp*1000 && topDate.getTime()>approvalTransactions[i].timeStamp*1000){
-                let allowance = approvalTransactions[i].allowance
-                let balance = approvalTransactions[i].balance
-                allowance = parseInt(allowance)/10**18
-                balance = parseInt(balance)/10**18
-                if (balance<allowance){
-                    totalVaR += balance
-                } else {
-                    totalVaR += allowance
-                }
-            }
+            totalaaVaR += parseFloat(approvalTransactions[approvalIndex].aaVaR)/10**18
+        }
+        if (totalaaVaR!=0){
+            monthlyValues.push(totalaaVaR)
+            monthlyDates.push(endMonth.getFullYear() + " " + endMonth.toLocaleString('default', { month: 'short' }))
         }
 
-        let changingDate = new Date(currentDate.getFullYear()-1, currentDate.getMonth(), currentDate.getDate())
         let lineChartData = []
-        for (let i=0; i<monthlyVaR.length; i++){
-            const month = changingDate.toLocaleString('default', { month: 'short' })
+        for (let i=0; i<monthlyValues.length; i++){
             lineChartData.push({
-                name: month + " " + changingDate.getFullYear(),
-                uv: monthlyVaR[i]
+                name: monthlyDates[i],
+                uv: monthlyValues[i]
             })
-            changingDate.setMonth(changingDate.getMonth()+1)
         }
         finalData["lineChartData"] = lineChartData
         setData(finalData)
@@ -123,13 +122,16 @@ function ChosenProtocol(props){
                 <div className="flex justify-between items-center mb-2 pb-3">
                     <div className="w-64 border border:black h-40 rounded-lg custom-animations_shine__1YTqy overflow-y-auto overflow-x-auto no-scrollbar">
                         <h1 className="text-center text-xl pt-2">
-                            Top 10 Users
+                            Top 20 Users
                         </h1>
+                        <h2 className="text-center text-xs pt-2">
+                            (Of {data.usersCount})
+                        </h2>
                         <div className="px-1">
                             <div className="general-styles_screen-centered-container__3fxeE h-full">
                                 <form className="h-full">
                                     <div className="relative">
-                                        <div className="inline-block mx-auto w-full">
+                                        <div className="inline-block mx-auto py-2 w-full">
                                             <div className="rounded-lg w-full max-h-20">
                                                 <table className="w-full text-center divide-y divide-gray-200">
                                                     <thead className="divide-y divide-gray-200 bg-white border-b sticky top-0">
@@ -147,7 +149,7 @@ function ChosenProtocol(props){
                                                                     <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                                         <td className="px-1 py-3">{1} 🏆</td>
                                                                         <td className="px-1 py-3">{data.shortId[i]}</td>
-                                                                        <td className="px-1 py-3">${user.VaR}</td>
+                                                                        <td className="px-1 py-3">${(parseFloat(user.aaVaR)/10**18).toFixed(2)}</td>
                                                                     </tr>
                                                                     )
                                                             } else if (i==1){
@@ -155,7 +157,7 @@ function ChosenProtocol(props){
                                                                     <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                                         <td className="px-1 py-3">{2} 🥈</td>
                                                                         <td className="px-1 py-3">{data.shortId[i]}</td>
-                                                                        <td className="px-1 py-3">${user.VaR}</td>
+                                                                        <td className="px-1 py-3">${(parseFloat(user.aaVaR)/10**18).toFixed(2)}</td>
                                                                     </tr>
                                                                     )
                                                             } else if (i==2){
@@ -163,7 +165,7 @@ function ChosenProtocol(props){
                                                                     <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                                         <td className="px-1 py-3">{3} 🥉</td>
                                                                         <td className="px-1 py-3">{data.shortId[i]}</td>
-                                                                        <td className="px-1 py-3">${user.VaR}</td>
+                                                                        <td className="px-1 py-3">${(parseFloat(user.aaVaR)/10**18).toFixed(2)}</td>
                                                                     </tr>
                                                                     )
                                                             } else {
@@ -171,7 +173,7 @@ function ChosenProtocol(props){
                                                                     <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                                         <td className="px-1 py-3">{i+1}</td>
                                                                         <td className="px-1 py-3">{data.shortId[i]}</td>
-                                                                        <td className="px-1 py-3">${user.VaR}</td>
+                                                                        <td className="px-1 py-3">${(parseFloat(user.aaVaR)/10**18).toFixed(2)}</td>
                                                                      </tr>
                                                                     )
                                                             }
@@ -223,14 +225,14 @@ function ChosenProtocol(props){
                         <div className="px-1">
                             <div className="general-styles_screen-centered-container__3fxeE h-full pt-2">
                                 <h1 className="text-center text-xl pt-2">
-                                    💸 Yearly Approval Adjusted VaR
+                                    💸 Approval Adjusted VaR
                                 </h1>
                             </div>
                         </div>
                         <div className="px-1">
                             <div className="general-styles_screen-centered-container__3fxeE h-full pt-2 pb-2">
                                 <LineChart width={500} height={300} data={data.lineChartData}>
-                                    <XAxis dataKey="name"/>
+                                    <XAxis dataKey="name" />
                                     <YAxis/>
                                     <CartesianGrid stroke="#eee" strokeDasharray="5 5"/>
                                     <Line type="monotone" dataKey="uv" stroke="#8884d8" />
