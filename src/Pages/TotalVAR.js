@@ -22,6 +22,14 @@ function TotalVAR(props){
             }
         }
 
+        let tokens = []
+        for (let userIndex=0; userIndex<allUsers.length; userIndex++){
+            if (allUsers[userIndex].tokenName!=="NAN" && !tokens.includes(allUsers[userIndex].tokenName)){
+                tokens.push({"name": allUsers[userIndex].tokenName, "aaVaR": (parseFloat(allUsers[userIndex].aaVaR)/10**18).toFixed(2)})
+            }
+        }
+        finalData["tokens"] = tokens
+
         allUsers.sort((a, b) => a.aaVaR - b.aaVaR)
         approvalTransactions.sort((a, b) => a.timeStamp - b.timeStamp)
         finalData["usersCount"] = allUsers.length
@@ -140,7 +148,10 @@ function TotalVAR(props){
                                                                         return(
                                                                             <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                                                 <td className="px-1 py-3">{1} 🏆</td>
-                                                                                <td className="px-1 py-3">{data.shortId[i]}</td>
+                                                                                <td className="px-1 py-3">
+                                                                                    <a className="transition duration-150 ease-in-out"
+                                                                                    data-bs-toggle="tooltip" title={user.id}>{data.shortId[i]}</a>
+                                                                                </td>
                                                                                 <td className="px-1 py-3">${(parseFloat(user.aaVaR)/10**18).toFixed(2)}</td>
                                                                             </tr>
                                                                         )
@@ -148,7 +159,10 @@ function TotalVAR(props){
                                                                         return(
                                                                             <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                                                 <td className="px-1 py-3">{2} 🥈</td>
-                                                                                <td className="px-1 py-3">{data.shortId[i]}</td>
+                                                                                <td className="px-1 py-3">
+                                                                                    <a className="transition duration-150 ease-in-out"
+                                                                                    data-bs-toggle="tooltip" title={user.id}>{data.shortId[i]}</a>
+                                                                                </td>
                                                                                 <td className="px-1 py-3">${(parseFloat(user.aaVaR)/10**18).toFixed(2)}</td>
                                                                             </tr>
                                                                         )
@@ -156,7 +170,10 @@ function TotalVAR(props){
                                                                         return(
                                                                             <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                                                 <td className="px-1 py-3">{3} 🥉</td>
-                                                                                <td className="px-1 py-3">{data.shortId[i]}</td>
+                                                                                <td className="px-1 py-3">
+                                                                                    <a className="transition duration-150 ease-in-out"
+                                                                                    data-bs-toggle="tooltip" title={user.id}>{data.shortId[i]}</a>
+                                                                                </td>
                                                                                 <td className="px-1 py-3">${(parseFloat(user.aaVaR)/10**18).toFixed(2)}</td>
                                                                             </tr>
                                                                         )
@@ -164,7 +181,10 @@ function TotalVAR(props){
                                                                         return(
                                                                             <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                                                 <td className="px-1 py-3">{i+1}</td>
-                                                                                <td className="px-1 py-3">{data.shortId[i]}</td>
+                                                                                <td className="px-1 py-3">
+                                                                                    <a className="transition duration-150 ease-in-out"
+                                                                                    data-bs-toggle="tooltip" title={user.id}>{data.shortId[i]}</a>
+                                                                                </td>
                                                                                 <td className="px-1 py-3">${(parseFloat(user.aaVaR)/10**18).toFixed(2)}</td>
                                                                             </tr>
                                                                         )
@@ -200,7 +220,55 @@ function TotalVAR(props){
                                                                 </tr>
                                                             </thead>
                                                             <tbody className="divide-y divide-gray-200">
-
+                                                            {
+                                                            data.tokens.map( (token, i) => {
+                                                                if (i==0){
+                                                                    return(
+                                                                        <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
+                                                                            <td className="px-1 py-3">{1} 🏆</td>
+                                                                            <td className="px-1 py-3">
+                                                                                <a className="transition duration-150 ease-in-out"
+                                                                                data-bs-toggle="tooltip">{token.name}</a>
+                                                                            </td>
+                                                                            <td className="px-1 py-3">${token.aaVaR}</td>
+                                                                        </tr>
+                                                                        )
+                                                                } else if (i==1){
+                                                                    return(
+                                                                        <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
+                                                                            <td className="px-1 py-3">{2} 🥈</td>
+                                                                            <td className="px-1 py-3">
+                                                                                <a className="transition duration-150 ease-in-out"
+                                                                                data-bs-toggle="tooltip">{token.name}</a>
+                                                                            </td>
+                                                                            <td className="px-1 py-3">${token.aaVaR}</td>
+                                                                        </tr>
+                                                                        )
+                                                                } else if (i==2){
+                                                                    return(
+                                                                        <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
+                                                                            <td className="px-1 py-3">{3} 🥉</td>
+                                                                            <td className="px-1 py-3">
+                                                                                <a className="transition duration-150 ease-in-out"
+                                                                                data-bs-toggle="tooltip">{token.name}</a>
+                                                                            </td>
+                                                                            <td className="px-1 py-3">${token.aaVaR}</td>
+                                                                        </tr>
+                                                                        )
+                                                                } else {
+                                                                    return(
+                                                                        <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
+                                                                            <td className="px-1 py-3">{i+1}</td>
+                                                                            <td className="px-1 py-3">
+                                                                                <a className="transition duration-150 ease-in-out"
+                                                                                data-bs-toggle="tooltip">{token.name}</a>
+                                                                            </td>
+                                                                            <td className="px-1 py-3">${token.aaVaR}</td>
+                                                                        </tr>
+                                                                        )
+                                                                }
+                                                            })
+                                                            }
                                                             </tbody>
                                                         </table>
                                                     </div>    

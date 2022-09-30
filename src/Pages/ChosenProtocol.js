@@ -14,6 +14,16 @@ function ChosenProtocol(props){
 
         finalData["usersCount"] = users.length
 
+        let tokens = []
+        for (let userIndex=0; userIndex<users.length; userIndex++){
+            if (users[userIndex].tokenName!=="NAN"){
+                if (!tokens.includes(users[userIndex].tokenName)){
+                    tokens.push({"name": users[userIndex].tokenName, "aaVaR": (parseFloat(users[userIndex].aaVaR)/10**18).toFixed(2)})
+                }
+            }
+        }
+        finalData["tokens"] = tokens
+
         users.sort((a, b) => a.aaVaR - b.aaVaR)
 
         let top10 = []
@@ -148,7 +158,10 @@ function ChosenProtocol(props){
                                                                return(
                                                                     <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                                         <td className="px-1 py-3">{1} 🏆</td>
-                                                                        <td className="px-1 py-3">{data.shortId[i]}</td>
+                                                                        <td className="px-1 py-3">
+                                                                            <a className="transition duration-150 ease-in-out"
+                                                                            data-bs-toggle="tooltip" title={user.id}>{data.shortId[i]}</a>
+                                                                        </td>
                                                                         <td className="px-1 py-3">${(parseFloat(user.aaVaR)/10**18).toFixed(2)}</td>
                                                                     </tr>
                                                                     )
@@ -156,7 +169,10 @@ function ChosenProtocol(props){
                                                                 return(
                                                                     <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                                         <td className="px-1 py-3">{2} 🥈</td>
-                                                                        <td className="px-1 py-3">{data.shortId[i]}</td>
+                                                                        <td className="px-1 py-3">
+                                                                            <a className="transition duration-150 ease-in-out"
+                                                                            data-bs-toggle="tooltip" title={user.id}>{data.shortId[i]}</a>
+                                                                        </td>
                                                                         <td className="px-1 py-3">${(parseFloat(user.aaVaR)/10**18).toFixed(2)}</td>
                                                                     </tr>
                                                                     )
@@ -164,7 +180,10 @@ function ChosenProtocol(props){
                                                                 return(
                                                                     <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                                         <td className="px-1 py-3">{3} 🥉</td>
-                                                                        <td className="px-1 py-3">{data.shortId[i]}</td>
+                                                                        <td className="px-1 py-3">
+                                                                            <a className="transition duration-150 ease-in-out"
+                                                                            data-bs-toggle="tooltip" title={user.id}>{data.shortId[i]}</a>
+                                                                        </td>
                                                                         <td className="px-1 py-3">${(parseFloat(user.aaVaR)/10**18).toFixed(2)}</td>
                                                                     </tr>
                                                                     )
@@ -172,7 +191,10 @@ function ChosenProtocol(props){
                                                                 return(
                                                                     <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                                         <td className="px-1 py-3">{i+1}</td>
-                                                                        <td className="px-1 py-3">{data.shortId[i]}</td>
+                                                                        <td className="px-1 py-3">
+                                                                            <a className="transition duration-150 ease-in-out"
+                                                                            data-bs-toggle="tooltip" title={user.id}>{data.shortId[i]}</a>
+                                                                        </td>
                                                                         <td className="px-1 py-3">${(parseFloat(user.aaVaR)/10**18).toFixed(2)}</td>
                                                                      </tr>
                                                                     )
@@ -207,8 +229,54 @@ function ChosenProtocol(props){
                                                         </tr>
                                                     </thead>
                                                     <tbody className="divide-y divide-gray-200">
-                                                        {
-                                                           
+                                                    {
+                                                        data.tokens.map( (token, i) => {
+                                                            if (i==0){
+                                                               return(
+                                                                    <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
+                                                                        <td className="px-1 py-3">{1} 🏆</td>
+                                                                        <td className="px-1 py-3">
+                                                                            <a className="transition duration-150 ease-in-out"
+                                                                            data-bs-toggle="tooltip">{token.name}</a>
+                                                                        </td>
+                                                                        <td className="px-1 py-3">${token.aaVaR}</td>
+                                                                    </tr>
+                                                                    )
+                                                            } else if (i==1){
+                                                                return(
+                                                                    <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
+                                                                        <td className="px-1 py-3">{2} 🥈</td>
+                                                                        <td className="px-1 py-3">
+                                                                            <a className="transition duration-150 ease-in-out"
+                                                                            data-bs-toggle="tooltip">{token.name}</a>
+                                                                        </td>
+                                                                        <td className="px-1 py-3">${token.aaVaR}</td>
+                                                                    </tr>
+                                                                    )
+                                                            } else if (i==2){
+                                                                return(
+                                                                    <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
+                                                                        <td className="px-1 py-3">{3} 🥉</td>
+                                                                        <td className="px-1 py-3">
+                                                                            <a className="transition duration-150 ease-in-out"
+                                                                            data-bs-toggle="tooltip">{token.name}</a>
+                                                                        </td>
+                                                                        <td className="px-1 py-3">${token.aaVaR}</td>
+                                                                    </tr>
+                                                                    )
+                                                            } else {
+                                                                return(
+                                                                    <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
+                                                                        <td className="px-1 py-3">{i+1}</td>
+                                                                        <td className="px-1 py-3">
+                                                                            <a className="transition duration-150 ease-in-out"
+                                                                            data-bs-toggle="tooltip">{token.name}</a>
+                                                                        </td>
+                                                                        <td className="px-1 py-3">${token.aaVaR}</td>
+                                                                     </tr>
+                                                                    )
+                                                            }
+                                                        })
                                                         }
                                                     </tbody>
                                                 </table>

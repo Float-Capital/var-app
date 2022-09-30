@@ -43,6 +43,7 @@ function LeaderBoard(props) {
                   ){
                     id
                     aaVaR
+                    tokenName
                     approvals {
                       aaVaR
                       timeStamp
@@ -76,6 +77,7 @@ function LeaderBoard(props) {
     for (let i=0; i<contracts.length; i++){
       totalaavar = parseFloat(totalaavar) + parseFloat(contracts[i].aaVaR)
     }
+    contracts.sort((a,b) => b.aaVaR - a.aaVaR)
     setTotalaaVaR(totalaavar)
     setAllContracts(contracts)
     setLoading(false)
