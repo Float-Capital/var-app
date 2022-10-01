@@ -23,3 +23,5 @@ This tool queries a custom subgraph and extracts information about specific prot
     - Hovering your mouse over any user address will display the users full address.
 
 ## Further work
+    - Listening to current transfer and approval events to update the graph immediately so it acts as "live".
+    - Include different filter events for the graphs depicting a specific protocol or all protocols.
