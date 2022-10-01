@@ -13,8 +13,6 @@ const client = createClient({
   url: APIURL
 })
 
-//const [allProtocols, setAllProtocls] = ([])
-
 function App(){
   const navigate = useNavigate()
   const [chosenProtocol, setChosenProtocol] = useState({})

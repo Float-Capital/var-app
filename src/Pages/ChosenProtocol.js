@@ -14,15 +14,16 @@ function ChosenProtocol(props){
 
         finalData["usersCount"] = users.length
 
-        let tokens = []
-        for (let userIndex=0; userIndex<users.length; userIndex++){
-            if (users[userIndex].tokenName!=="NAN"){
-                if (!tokens.includes(users[userIndex].tokenName)){
-                    tokens.push({"name": users[userIndex].tokenName, "aaVaR": (parseFloat(users[userIndex].aaVaR)/10**18).toFixed(2)})
-                }
-            }
-        }
-        finalData["tokens"] = tokens
+        let tokensObj = [{balance: 0, name: "USD Coin"},
+        {balance: 0, name: "Tether USD Coin"},
+        {balance: 0, name: "DAI Stable Coin"}]
+
+        props.chosenProtocol.tokens.map( (item)=> {
+            tokensObj[0].balance = parseFloat(tokensObj[0].balance) + (parseFloat(item.usdBalance)/10**18)
+            tokensObj[1].balance = parseFloat(tokensObj[1].balance) + (parseFloat(item.tetherBalance)/10**18)
+            tokensObj[2].balance = parseFloat(tokensObj[2].balance) + (parseFloat(item.daiBalance)/10**18)
+        })
+        finalData["tokens"] = tokensObj
 
         users.sort((a, b) => a.aaVaR - b.aaVaR)
 
@@ -212,7 +213,7 @@ function ChosenProtocol(props){
                     </div>
                     <div className="w-64 border border:black h-40 rounded-lg custom-animations_shine__1YTqy overflow-y-auto no-scrollbar">
                         <h1 className="text-center text-xl pt-2">
-                            Top 10 Tokens
+                            Tokens
                         </h1>
                         <div className="px-1">
                             <div className="general-styles_screen-centered-container__3fxeE h-full">
@@ -225,7 +226,7 @@ function ChosenProtocol(props){
                                                         <tr className="text-xs md:text-xxs lg:text-xs">
                                                             <td className="px-1 underline font-bold py-3">Rank</td>
                                                             <td className="px-1 underline font-bold py-3">Name</td>
-                                                            <td className="px-1 underline font-bold py-3">Approval Adjusted VaR</td>
+                                                            <td className="px-1 underline font-bold py-3">Percentage of {props.chosenProtocol.name}</td>
                                                         </tr>
                                                     </thead>
                                                     <tbody className="divide-y divide-gray-200">
@@ -239,7 +240,7 @@ function ChosenProtocol(props){
                                                                             <a className="transition duration-150 ease-in-out"
                                                                             data-bs-toggle="tooltip">{token.name}</a>
                                                                         </td>
-                                                                        <td className="px-1 py-3">${token.aaVaR}</td>
+                                                                        <td className="px-1 py-3">{((token.balance/props.chosenProtocol.aaVaR)*100).toFixed(2)}%</td>
                                                                     </tr>
                                                                     )
                                                             } else if (i==1){
@@ -250,7 +251,7 @@ function ChosenProtocol(props){
                                                                             <a className="transition duration-150 ease-in-out"
                                                                             data-bs-toggle="tooltip">{token.name}</a>
                                                                         </td>
-                                                                        <td className="px-1 py-3">${token.aaVaR}</td>
+                                                                        <td className="px-1 py-3">{((token.balance/props.chosenProtocol.aaVaR)*100).toFixed(2)}%</td>
                                                                     </tr>
                                                                     )
                                                             } else if (i==2){
@@ -261,7 +262,7 @@ function ChosenProtocol(props){
                                                                             <a className="transition duration-150 ease-in-out"
                                                                             data-bs-toggle="tooltip">{token.name}</a>
                                                                         </td>
-                                                                        <td className="px-1 py-3">${token.aaVaR}</td>
+                                                                        <td className="px-1 py-3">{((token.balance/props.chosenProtocol.aaVaR)*100).toFixed(2)}%</td>
                                                                     </tr>
                                                                     )
                                                             } else {
@@ -272,7 +273,7 @@ function ChosenProtocol(props){
                                                                             <a className="transition duration-150 ease-in-out"
                                                                             data-bs-toggle="tooltip">{token.name}</a>
                                                                         </td>
-                                                                        <td className="px-1 py-3">${token.aaVaR}</td>
+                                                                        <td className="px-1 py-3">{((token.balance/props.chosenProtocol.aaVaR)*100).toFixed(2)}%</td>
                                                                      </tr>
                                                                     )
                                                             }

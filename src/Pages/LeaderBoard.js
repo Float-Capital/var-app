@@ -6,6 +6,12 @@ query {
     id
     name
   	userCount
+    tokens{
+      id
+      usdBalance
+      daiBalance
+      tetherBalance
+    }
   }
 }
 `
@@ -15,6 +21,14 @@ function LeaderBoard(props) {
   const [loading, setLoading] = useState(true)
   const [totalaaVaR, setTotalaaVaR] = useState(0)
   const [allContracts, setAllContracts] = useState([])
+  const ethers = require("ethers")
+  const abi = [
+    "function name() view returns (string)",
+    "function symbol() view returns (string)",
+    "function allowance(address owner, address spender) external view returns (uint256)",
+    "function balanceOf(address) view returns (uint)",
+  ]
+  const provider = new ethers.providers.JsonRpcProvider("https://rpc.ankr.com/polygon")
 
   async function fetchBlockChainData() {
 
@@ -43,7 +57,6 @@ function LeaderBoard(props) {
                   ){
                     id
                     aaVaR
-                    tokenName
                     approvals {
                       aaVaR
                       timeStamp
@@ -78,6 +91,7 @@ function LeaderBoard(props) {
       totalaavar = parseFloat(totalaavar) + parseFloat(contracts[i].aaVaR)
     }
     contracts.sort((a,b) => b.aaVaR - a.aaVaR)
+
     setTotalaaVaR(totalaavar)
     setAllContracts(contracts)
     setLoading(false)

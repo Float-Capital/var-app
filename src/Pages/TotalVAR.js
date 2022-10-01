@@ -11,6 +11,18 @@ function TotalVAR(props){
         let finalData = {}
         let protocols = props.protocols
 
+        let tokensObj = [{balance: 0, name: "USD Coin"},
+        {balance: 0, name: "Tether USD Coin"},
+        {balance: 0, name: "DAI Stable Coin"}]
+
+        protocols.map( (item) => {
+            tokensObj[0].balance = parseFloat(tokensObj[0].balance) + (parseFloat(item.tokens[0].usdBalance)/10**18)
+            tokensObj[1].balance = parseFloat(tokensObj[1].balance) + (parseFloat(item.tokens[0].tetherBalance)/10**18)
+            tokensObj[2].balance = parseFloat(tokensObj[2].balance) + (parseFloat(item.tokens[0].daiBalance)/10**18)
+        })
+        tokensObj.sort((a,b) => b.balance - a.balance)
+        finalData["tokens"] = tokensObj
+
         let approvalTransactions = []
         let allUsers = []
         for (let i=0; i<protocols.length; i++){
@@ -21,14 +33,6 @@ function TotalVAR(props){
                 }
             }
         }
-
-        let tokens = []
-        for (let userIndex=0; userIndex<allUsers.length; userIndex++){
-            if (allUsers[userIndex].tokenName!=="NAN" && !tokens.includes(allUsers[userIndex].tokenName)){
-                tokens.push({"name": allUsers[userIndex].tokenName, "aaVaR": (parseFloat(allUsers[userIndex].aaVaR)/10**18).toFixed(2)})
-            }
-        }
-        finalData["tokens"] = tokens
 
         allUsers.sort((a, b) => a.aaVaR - b.aaVaR)
         approvalTransactions.sort((a, b) => a.timeStamp - b.timeStamp)
@@ -203,7 +207,7 @@ function TotalVAR(props){
                             <div className="w-64 border border:black h-40 rounded-lg custom-animations_shine__1YTqy overflow-y-auto no-scrollbar">
                                 <h1 className="text-center text-xl pt-2">
                                     <img className="inline h-5 ml-2" src="https://media-float-capital.fra1.cdn.digitaloceanspaces.com/public/icons/dollar-coin.png"></img>
-                                    Top 10 Tokens
+                                    Tokens
                                     </h1>
                                 <div className="px-1">
                                     <div className="general-styles_screen-centered-container__3fxeE h-full">
@@ -221,54 +225,54 @@ function TotalVAR(props){
                                                             </thead>
                                                             <tbody className="divide-y divide-gray-200">
                                                             {
-                                                            data.tokens.map( (token, i) => {
-                                                                if (i==0){
-                                                                    return(
-                                                                        <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
-                                                                            <td className="px-1 py-3">{1} 🏆</td>
-                                                                            <td className="px-1 py-3">
-                                                                                <a className="transition duration-150 ease-in-out"
-                                                                                data-bs-toggle="tooltip">{token.name}</a>
-                                                                            </td>
-                                                                            <td className="px-1 py-3">${token.aaVaR}</td>
-                                                                        </tr>
-                                                                        )
-                                                                } else if (i==1){
-                                                                    return(
-                                                                        <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
-                                                                            <td className="px-1 py-3">{2} 🥈</td>
-                                                                            <td className="px-1 py-3">
-                                                                                <a className="transition duration-150 ease-in-out"
-                                                                                data-bs-toggle="tooltip">{token.name}</a>
-                                                                            </td>
-                                                                            <td className="px-1 py-3">${token.aaVaR}</td>
-                                                                        </tr>
-                                                                        )
-                                                                } else if (i==2){
-                                                                    return(
-                                                                        <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
-                                                                            <td className="px-1 py-3">{3} 🥉</td>
-                                                                            <td className="px-1 py-3">
-                                                                                <a className="transition duration-150 ease-in-out"
-                                                                                data-bs-toggle="tooltip">{token.name}</a>
-                                                                            </td>
-                                                                            <td className="px-1 py-3">${token.aaVaR}</td>
-                                                                        </tr>
-                                                                        )
-                                                                } else {
-                                                                    return(
-                                                                        <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
-                                                                            <td className="px-1 py-3">{i+1}</td>
-                                                                            <td className="px-1 py-3">
-                                                                                <a className="transition duration-150 ease-in-out"
-                                                                                data-bs-toggle="tooltip">{token.name}</a>
-                                                                            </td>
-                                                                            <td className="px-1 py-3">${token.aaVaR}</td>
-                                                                        </tr>
-                                                                        )
-                                                                }
-                                                            })
+                                                        data.tokens.map( (token, i) => {
+                                                            if (i==0){
+                                                               return(
+                                                                    <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
+                                                                        <td className="px-1 py-3">{1} 🏆</td>
+                                                                        <td className="px-1 py-3">
+                                                                            <a className="transition duration-150 ease-in-out"
+                                                                            data-bs-toggle="tooltip">{token.name}</a>
+                                                                        </td>
+                                                                        <td className="px-1 py-3">${token.balance}</td>
+                                                                    </tr>
+                                                                    )
+                                                            } else if (i==1){
+                                                                return(
+                                                                    <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
+                                                                        <td className="px-1 py-3">{2} 🥈</td>
+                                                                        <td className="px-1 py-3">
+                                                                            <a className="transition duration-150 ease-in-out"
+                                                                            data-bs-toggle="tooltip">{token.name}</a>
+                                                                        </td>
+                                                                        <td className="px-1 py-3">${token.balance}</td>
+                                                                    </tr>
+                                                                    )
+                                                            } else if (i==2){
+                                                                return(
+                                                                    <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
+                                                                        <td className="px-1 py-3">{3} 🥉</td>
+                                                                        <td className="px-1 py-3">
+                                                                            <a className="transition duration-150 ease-in-out"
+                                                                            data-bs-toggle="tooltip">{token.name}</a>
+                                                                        </td>
+                                                                        <td className="px-1 py-3">${token.balance}</td>
+                                                                    </tr>
+                                                                    )
+                                                            } else {
+                                                                return(
+                                                                    <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
+                                                                        <td className="px-1 py-3">{i+1}</td>
+                                                                        <td className="px-1 py-3">
+                                                                            <a className="transition duration-150 ease-in-out"
+                                                                            data-bs-toggle="tooltip">{token.name}</a>
+                                                                        </td>
+                                                                        <td className="px-1 py-3">${token.balance}</td>
+                                                                     </tr>
+                                                                    )
                                                             }
+                                                        })
+                                                        }
                                                             </tbody>
                                                         </table>
                                                     </div>    
