@@ -11,6 +11,18 @@ function TotalVAR(props){
         let finalData = {}
         let protocols = props.protocols
 
+        let tokensObj = [{balance: 0, name: "USD Coin"},
+        {balance: 0, name: "Tether USD Coin"},
+        {balance: 0, name: "DAI Stable Coin"}]
+
+        protocols.map( (item) => {
+            tokensObj[0].balance = parseFloat(tokensObj[0].balance) + (parseFloat(item.tokens[0].usdBalance)/10**18)
+            tokensObj[1].balance = parseFloat(tokensObj[1].balance) + (parseFloat(item.tokens[0].tetherBalance)/10**18)
+            tokensObj[2].balance = parseFloat(tokensObj[2].balance) + (parseFloat(item.tokens[0].daiBalance)/10**18)
+        })
+        tokensObj.sort((a,b) => b.balance - a.balance)
+        finalData["tokens"] = tokensObj
+
         let approvalTransactions = []
         let allUsers = []
         for (let i=0; i<protocols.length; i++){
@@ -21,65 +33,60 @@ function TotalVAR(props){
                 }
             }
         }
-        
-        allUsers.sort((a, b) => a.VaR - b.VaR)
+
+        allUsers.sort((a, b) => a.aaVaR - b.aaVaR)
         approvalTransactions.sort((a, b) => a.timeStamp - b.timeStamp)
+        finalData["usersCount"] = allUsers.length
 
         let top10 = []
-        let addresses = []
         let shortId = []
+        let addresses = []
         for (let i=allUsers.length-1; i>-1; i--){
-            let contains = false
-            if (top10.length==10){break}
+            if (top10.length===20){
+                break
+            }
+            let found = false
             for (let j=0; j<addresses.length; j++){
-                if (addresses[j]===allUsers[i].id){
-                    contains = true
-                    break
+                if (allUsers[i].id===addresses[j]){
+                    found = true
                 }
             }
-            if (!contains){
+            if (!found){
+                addresses.push(allUsers[i].id)
                 top10.push(allUsers[i])
                 shortId.push(allUsers[i].id.substring(0, 3) + "..." + allUsers[i].id.substring(allUsers[i].id.length-3, allUsers[i].id.length))
-                addresses.push(allUsers[i].id)
             }
         }
         finalData["top10"] = top10
         finalData["shortId"] = shortId
 
-        const currentDate = new Date()
-        let bottomDate = new Date(currentDate.getFullYear()-1, currentDate.getMonth(), currentDate.getDate())
-        let topDate = new Date(currentDate.getFullYear()-1, currentDate.getMonth()+1, currentDate.getDate())
-        let monthlyVaR = []
-        let totalVaR = 0
-        for (let i=0; i<approvalTransactions.length; i++){
-            if (topDate.getTime()<approvalTransactions[i].timeStamp*1000){
-                monthlyVaR.push(totalVaR)
-                bottomDate.setMonth(bottomDate.getMonth()+1)
-                topDate.setMonth(topDate.getMonth()+1)
-                totalVaR = 0
+        let startMonth = new Date(approvalTransactions[0].timeStamp*1000)
+        let endMonth = new Date(startMonth.getFullYear(), startMonth.getMonth()+1, 0)
+        let totalaaVaR = 0
+        let monthlyValues = []
+        let monthlyDates = []
+        for (let approvalIndex=0; approvalIndex<approvalTransactions.length; approvalIndex++){
+            if (endMonth.getTime()<approvalTransactions[approvalIndex].timeStamp*1000){
+                monthlyValues.push(totalaaVaR)
+                monthlyDates.push(endMonth.getFullYear() + " " + endMonth.toLocaleString('default', { month: 'short' }))
+                totalaaVaR = 0
+                startMonth.setMonth(startMonth.getMonth()+1)
+                startMonth.setDate(1)
+                endMonth = new Date(startMonth.getFullYear(), startMonth.getMonth()+1, 0)
             }
-            if (bottomDate.getTime()<approvalTransactions[i].timeStamp*1000 && topDate.getTime()>approvalTransactions[i].timeStamp*1000){
-                let allowance = approvalTransactions[i].allowance
-                let balance = approvalTransactions[i].balance
-                allowance = parseInt(allowance)/10**18
-                balance = parseInt(balance)/10**18
-                if (balance<allowance){
-                    totalVaR += balance
-                } else {
-                    totalVaR += allowance
-                }
-            }
+            totalaaVaR += parseFloat(approvalTransactions[approvalIndex].aaVaR)/10**18
+        }
+        if (totalaaVaR!==0){
+            monthlyValues.push(totalaaVaR)
+            monthlyDates.push(endMonth.getFullYear() + " " + endMonth.toLocaleString('default', { month: 'short' }))
         }
         
-        let changingDate = new Date(currentDate.getFullYear()-1, currentDate.getMonth(), currentDate.getDate())
         let lineChartData = []
-        for (let i=0; i<monthlyVaR.length; i++){
-            const month = changingDate.toLocaleString('default', { month: 'short' })
+        for (let i=0; i<monthlyValues.length; i++){
             lineChartData.push({
-                name: month + " " + changingDate.getFullYear(),
-                uv: monthlyVaR[i]
+                name: monthlyDates[i],
+                uv: monthlyValues[i]
             })
-            changingDate.setMonth(changingDate.getMonth()+1)
         }
         finalData["lineChartData"] = lineChartData
 
@@ -119,8 +126,11 @@ function TotalVAR(props){
                         <div className="flex justify-between items-center mb-2 pb-3">
                             <div className="w-64 border border:black h-40 rounded-lg custom-animations_shine__1YTqy overflow-y-auto no-scrollbar">
                                 <h1 className="text-center text-xl pt-2">
-                                    Top 10 Users
+                                    Top 20 Users
                                 </h1>
+                                <h2 className="text-center text-xs pt-2">
+                                    (Of {data.usersCount})
+                                </h2>
                                 <div className="px-1">
                                     <div className="general-styles_screen-centered-container__3fxeE h-full">
                                         <form className="h-full">
@@ -138,36 +148,48 @@ function TotalVAR(props){
                                                             <tbody className="divide-y divide-gray-200">
                                                             {
                                                                 data.top10.map( (user, i) => {
-                                                                    if (i==0){
+                                                                    if (i===0){
                                                                         return(
                                                                             <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                                                 <td className="px-1 py-3">{1} 🏆</td>
-                                                                                <td className="px-1 py-3">{data.shortId[i]}</td>
-                                                                                <td className="px-1 py-3">${user.VaR}</td>
+                                                                                <td className="px-1 py-3">
+                                                                                    <a className="transition duration-150 ease-in-out"
+                                                                                    data-bs-toggle="tooltip" title={user.id}>{data.shortId[i]}</a>
+                                                                                </td>
+                                                                                <td className="px-1 py-3">${(parseFloat(user.aaVaR)/10**18).toFixed(2)}</td>
                                                                             </tr>
                                                                         )
-                                                                    } else if (i==1){
+                                                                    } else if (i===1){
                                                                         return(
                                                                             <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                                                 <td className="px-1 py-3">{2} 🥈</td>
-                                                                                <td className="px-1 py-3">{data.shortId[i]}</td>
-                                                                                <td className="px-1 py-3">${user.VaR}</td>
+                                                                                <td className="px-1 py-3">
+                                                                                    <a className="transition duration-150 ease-in-out"
+                                                                                    data-bs-toggle="tooltip" title={user.id}>{data.shortId[i]}</a>
+                                                                                </td>
+                                                                                <td className="px-1 py-3">${(parseFloat(user.aaVaR)/10**18).toFixed(2)}</td>
                                                                             </tr>
                                                                         )
-                                                                    } else if (i==2){
+                                                                    } else if (i===2){
                                                                         return(
                                                                             <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                                                 <td className="px-1 py-3">{3} 🥉</td>
-                                                                                <td className="px-1 py-3">{data.shortId[i]}</td>
-                                                                                <td className="px-1 py-3">${user.VaR}</td>
+                                                                                <td className="px-1 py-3">
+                                                                                    <a className="transition duration-150 ease-in-out"
+                                                                                    data-bs-toggle="tooltip" title={user.id}>{data.shortId[i]}</a>
+                                                                                </td>
+                                                                                <td className="px-1 py-3">${(parseFloat(user.aaVaR)/10**18).toFixed(2)}</td>
                                                                             </tr>
                                                                         )
                                                                     } else {
                                                                         return(
                                                                             <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
                                                                                 <td className="px-1 py-3">{i+1}</td>
-                                                                                <td className="px-1 py-3">{data.shortId[i]}</td>
-                                                                                <td className="px-1 py-3">${user.VaR}</td>
+                                                                                <td className="px-1 py-3">
+                                                                                    <a className="transition duration-150 ease-in-out"
+                                                                                    data-bs-toggle="tooltip" title={user.id}>{data.shortId[i]}</a>
+                                                                                </td>
+                                                                                <td className="px-1 py-3">${(parseFloat(user.aaVaR)/10**18).toFixed(2)}</td>
                                                                             </tr>
                                                                         )
                                                                     }
@@ -185,7 +207,7 @@ function TotalVAR(props){
                             <div className="w-64 border border:black h-40 rounded-lg custom-animations_shine__1YTqy overflow-y-auto no-scrollbar">
                                 <h1 className="text-center text-xl pt-2">
                                     <img className="inline h-5 ml-2" src="https://media-float-capital.fra1.cdn.digitaloceanspaces.com/public/icons/dollar-coin.png"></img>
-                                    Top 10 Tokens
+                                    Tokens
                                     </h1>
                                 <div className="px-1">
                                     <div className="general-styles_screen-centered-container__3fxeE h-full">
@@ -202,7 +224,55 @@ function TotalVAR(props){
                                                                 </tr>
                                                             </thead>
                                                             <tbody className="divide-y divide-gray-200">
-
+                                                            {
+                                                        data.tokens.map( (token, i) => {
+                                                            if (i==0){
+                                                               return(
+                                                                    <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
+                                                                        <td className="px-1 py-3">{1} 🏆</td>
+                                                                        <td className="px-1 py-3">
+                                                                            <a className="transition duration-150 ease-in-out"
+                                                                            data-bs-toggle="tooltip">{token.name}</a>
+                                                                        </td>
+                                                                        <td className="px-1 py-3">${token.balance}</td>
+                                                                    </tr>
+                                                                    )
+                                                            } else if (i==1){
+                                                                return(
+                                                                    <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
+                                                                        <td className="px-1 py-3">{2} 🥈</td>
+                                                                        <td className="px-1 py-3">
+                                                                            <a className="transition duration-150 ease-in-out"
+                                                                            data-bs-toggle="tooltip">{token.name}</a>
+                                                                        </td>
+                                                                        <td className="px-1 py-3">${token.balance}</td>
+                                                                    </tr>
+                                                                    )
+                                                            } else if (i==2){
+                                                                return(
+                                                                    <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
+                                                                        <td className="px-1 py-3">{3} 🥉</td>
+                                                                        <td className="px-1 py-3">
+                                                                            <a className="transition duration-150 ease-in-out"
+                                                                            data-bs-toggle="tooltip">{token.name}</a>
+                                                                        </td>
+                                                                        <td className="px-1 py-3">${token.balance}</td>
+                                                                    </tr>
+                                                                    )
+                                                            } else {
+                                                                return(
+                                                                    <tr key={i} className="text-xs md:text-xxs lg:text-xs shadow-md">
+                                                                        <td className="px-1 py-3">{i+1}</td>
+                                                                        <td className="px-1 py-3">
+                                                                            <a className="transition duration-150 ease-in-out"
+                                                                            data-bs-toggle="tooltip">{token.name}</a>
+                                                                        </td>
+                                                                        <td className="px-1 py-3">${token.balance}</td>
+                                                                     </tr>
+                                                                    )
+                                                            }
+                                                        })
+                                                        }
                                                             </tbody>
                                                         </table>
                                                     </div>    
@@ -218,7 +288,7 @@ function TotalVAR(props){
                                 <div className="px-1">
                                     <div className="general-styles_screen-centered-container__3fxeE h-full pt-2">
                                         <h1 className="text-center text-xl pt-2">
-                                            📈 Yearly Approval Adjusted VaR (All protocols)
+                                            📈 Approval Adjusted VaR (All protocols)
                                         </h1>
                                     </div>
                                 </div>

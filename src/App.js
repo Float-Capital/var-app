@@ -7,13 +7,11 @@ import { createClient } from "urql"
 import { useNavigate } from "react-router-dom"
 import React, { useState } from 'react'
 
-const APIURL = "https://api.thegraph.com/subgraphs/name/greg-torrington/greg-v3"
+const APIURL = "https://api.thegraph.com/subgraphs/name/greg-torrington/greg-torrington-v4"
 
 const client = createClient({
   url: APIURL
 })
-
-//const [allProtocols, setAllProtocls] = ([])
 
 function App(){
   const navigate = useNavigate()

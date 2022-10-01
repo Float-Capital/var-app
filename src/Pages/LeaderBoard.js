@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react'
 
-const APIURL = "https://api.thegraph.com/subgraphs/name/greg-torrington/greg-v3"
 const assetQuery = `
 query {
   assets {
     id
     name
-  	count
+  	userCount
+    tokens{
+      id
+      usdBalance
+      daiBalance
+      tetherBalance
+    }
   }
 }
 `
@@ -14,8 +19,16 @@ query {
 function LeaderBoard(props) {
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(true)
-  const [totalVaR, setTotalVaR] = useState(0)
+  const [totalaaVaR, setTotalaaVaR] = useState(0)
   const [allContracts, setAllContracts] = useState([])
+  const ethers = require("ethers")
+  const abi = [
+    "function name() view returns (string)",
+    "function symbol() view returns (string)",
+    "function allowance(address owner, address spender) external view returns (uint256)",
+    "function balanceOf(address) view returns (uint)",
+  ]
+  const provider = new ethers.providers.JsonRpcProvider("https://rpc.ankr.com/polygon")
 
   async function fetchBlockChainData() {
 
@@ -25,29 +38,27 @@ function LeaderBoard(props) {
 
     for (let contractIndex=0; contractIndex<contracts.length; contractIndex++){
 
-      contracts[contractIndex]["VaR"] = 0
       contracts[contractIndex]["users"] = []
-      let noUsers = contracts[contractIndex]["count"] 
+      let noUsers = contracts[contractIndex]["userCount"]
   
       let skip = 0
       let first = 1000
       let usersPromiseArray = []
+      let assetId = contracts[contractIndex]["id"]
       while (noUsers>0) {
           if (noUsers<1000){first=noUsers}
 
           let usersQuery = `
               query {
                   users (
+                  where: {assets: "`+assetId+`"}
                   first: `+first+`
                   after: `+skip+`
                   ){
                     id
-                    balance
-                    allowance
-                    countApprovals
+                    aaVaR
                     approvals {
-                      balance
-                      allowance
+                      aaVaR
                       timeStamp
                     }
                   }
@@ -67,24 +78,23 @@ function LeaderBoard(props) {
         }
         contracts[contractIndex]["users"] = users
 
+        contracts[contractIndex]["aaVaR"] = 0
         for (let i=0; i<contracts[contractIndex]["users"].length; i++){
-          let allowance = contracts[contractIndex]["users"][i].allowance
-          let balance = contracts[contractIndex]["users"][i].balance
-          allowance = parseInt(allowance)/10**18
-          balance = parseInt(balance)/10**18
-          if (allowance<balance){
-            contracts[contractIndex]["users"][i]["VaR"] = allowance.toFixed(2)
-            contracts[contractIndex]["VaR"] += allowance
-          } else {
-            contracts[contractIndex]["users"][i]["VaR"] = balance.toFixed(2)
-            contracts[contractIndex]["VaR"] += balance
-          }
+          let aaVaR = contracts[contractIndex]["users"][i].aaVaR
+          aaVaR = parseFloat(aaVaR)/10**18
+          contracts[contractIndex].aaVaR += aaVaR
         }
-        contracts[contractIndex]["VaR"] = contracts[contractIndex]["VaR"].toFixed(2)
-        setTotalVaR(contracts[contractIndex]["VaR"])
-        setAllContracts(contracts)
-        setLoading(false)
-      }
+        contracts[contractIndex].aaVaR = contracts[contractIndex].aaVaR.toFixed(2)
+    }
+    let totalaavar = 0
+    for (let i=0; i<contracts.length; i++){
+      totalaavar = parseFloat(totalaavar) + parseFloat(contracts[i].aaVaR)
+    }
+    contracts.sort((a,b) => b.aaVaR - a.aaVaR)
+
+    setTotalaaVaR(totalaavar)
+    setAllContracts(contracts)
+    setLoading(false)
   }
 
 
@@ -152,7 +162,7 @@ function LeaderBoard(props) {
                                                   props.setChosenProtocol(item)
                                                   props.navigate("/protocol") 
                                                   }}>{item.name}</td>
-                                                <td className="px-1 py-3">${item["VaR"]}</td>
+                                                <td className="px-1 py-3">${item.aaVaR}</td>
                                               </tr>
                                             )
                                           } else if (i===1){
@@ -163,7 +173,7 @@ function LeaderBoard(props) {
                                                   props.setChosenProtocol(item)
                                                   props.navigate("/protocol")
                                                   }}>{item.name}</td>
-                                                <td className="px-1 py-3">${item["VaR"]}</td>
+                                                <td className="px-1 py-3">${item.aaVaR}</td>
                                               </tr>
                                             )
                                           } else if (i===2){
@@ -174,7 +184,7 @@ function LeaderBoard(props) {
                                                   props.setChosenProtocol(item)
                                                   props.navigate("/protocol")
                                                   }}>{item.name}</td>
-                                                <td className="px-1 py-3">${item["VaR"]}</td>
+                                                <td className="px-1 py-3">${item.aaVaR}</td>
                                               </tr>
                                             )
                                           } else {
@@ -185,7 +195,7 @@ function LeaderBoard(props) {
                                                   props.setChosenProtocol(item)
                                                   props.navigate("/protocol")
                                                   }}>{item.name}</td>
-                                                <td className="px-1 py-3">${item["VaR"]}</td>
+                                                <td className="px-1 py-3">${item.aaVaR}</td>
                                               </tr>
                                             )
                                           }                                        
@@ -203,7 +213,7 @@ function LeaderBoard(props) {
                         props.setProtocols(allContracts)
                         props.navigate("/totalVAR")
                         }}>
-                      💸 Total: ${totalVaR}
+                      💸 Total: ${totalaaVaR.toFixed(2)}
                       </h3>
                     </div>
                   </div>
